@@ -9,33 +9,44 @@ function analisarArquivo() {
 
     const reader = new FileReader();
     const tipoArquivo = arquivo.type;
+    const nomeArquivo = arquivo.name.toLowerCase();
 
     reader.onload = function(event) {
         const conteudo = event.target.result;
 
-        // Limpar visualizações anteriores
         document.getElementById('image-preview').innerHTML = '';
         document.getElementById('pdf-preview').innerHTML = '';
         document.getElementById('resultados').innerHTML = '';
 
-        if (tipoArquivo.startsWith("text/")) {
-            const resultados = analisarConteudo(conteudo);
-            mostrarResultados(resultados);
+        if (tipoArquivo.startsWith("text/") || nomeArquivo.endsWith(".ret")) {
+            const resultados = nomeArquivo.endsWith('.ret') ? 
+                analisarConteudoRET(conteudo) : 
+                analisarConteudo(conteudo);
+
+            if (nomeArquivo.endsWith('.ret')) {
+                mostrarResultadosRET(resultados);
+            } else {
+                mostrarResultados(resultados);
+            }
         } else if (tipoArquivo.startsWith("image/")) {
-            mostrarImagem(conteudo);
+            reader.readAsDataURL(arquivo);
+            reader.onload = function(e) {
+                mostrarImagem(e.target.result);
+            };
         } else if (tipoArquivo === "application/pdf") {
-            mostrarPdf(conteudo);
+            const typedArray = new Uint8Array(conteudo);
+            mostrarPdf(typedArray);
         } else {
             alert("Formato de arquivo não suportado.");
         }
     };
 
-    if (tipoArquivo.startsWith("text/")) {
-        reader.readAsText(arquivo);  // Para arquivos de texto
+    if (tipoArquivo.startsWith("text/") || nomeArquivo.endsWith('.ret')) {
+        reader.readAsText(arquivo, 'latin1'); // CNAB usa codificação ANSI
     } else if (tipoArquivo.startsWith("image/")) {
-        reader.readAsDataURL(arquivo);  // Para imagens
+        reader.readAsDataURL(arquivo);
     } else if (tipoArquivo === "application/pdf") {
-        reader.readAsArrayBuffer(arquivo);  // Para PDF
+        reader.readAsArrayBuffer(arquivo);
     }
 }
 
@@ -60,15 +71,32 @@ function analisarConteudo(conteudo) {
     };
 }
 
-function contarPalavrasFrequentes(palavras) {
-    const contagem = {};
-    palavras.forEach(palavra => {
-        contagem[palavra] = (contagem[palavra] || 0) + 1;
-    });
+function analisarConteudoRET(conteudo) {
+    const linhas = conteudo.split('\n');
+    return linhas.map(linha => {
+        if (linha.length < 165 || linha[0] !== '1') return null;
 
-    return Object.entries(contagem)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
+        return {
+            tipoRegistro: linha.substring(0, 1),
+            agencia: linha.substring(17, 21).trim(),
+            conta: linha.substring(23, 30).trim(),
+            nossoNumero: linha.substring(62, 70).trim(),
+            numeroDocumento: linha.substring(116, 126).trim(),
+            carteira: linha.substring(107, 108).trim(),
+            codigoOcorrencia: linha.substring(108, 110).trim(),
+            dataVencimento: formatarData(linha.substring(146, 152)),
+            valorTitulo: parseFloat(linha.substring(152, 165)) / 100,
+            cpfCnpj: linha.substring(219, 233).trim()
+        };
+    }).filter(item => item);
+}
+
+function formatarData(dataStr) {
+    if (!dataStr || dataStr.length !== 6) return '';
+    const dia = dataStr.substring(0, 2);
+    const mes = dataStr.substring(2, 4);
+    const ano = '20' + dataStr.substring(4, 6);
+    return `${dia}/${mes}/${ano}`;
 }
 
 function mostrarResultados(resultados) {
@@ -87,30 +115,64 @@ function mostrarResultados(resultados) {
     `;
 }
 
+function mostrarResultadosRET(registros) {
+    const div = document.getElementById("resultados");
+
+    if (!registros.length) {
+        div.innerHTML = "<p>Nenhum registro de transação encontrado.</p>";
+        return;
+    }
+
+    let html = `<table border="1" cellpadding="5">
+        <tr>
+            <th>Agência</th>
+            <th>Conta</th>
+            <th>Nosso Número</th>
+            <th>Nº Documento</th>
+            <th>Carteira</th>
+            <th>Ocorrência</th>
+            <th>Vencimento</th>
+            <th>Valor (R$)</th>
+            <th>CPF/CNPJ</th>
+        </tr>`;
+
+    registros.forEach(item => {
+        html += `<tr>
+            <td>${item.agencia}</td>
+            <td>${item.conta}</td>
+            <td>${item.nossoNumero}</td>
+            <td>${item.numeroDocumento}</td>
+            <td>${item.carteira}</td>
+            <td>${item.codigoOcorrencia}</td>
+            <td>${item.dataVencimento}</td>
+            <td>R$ ${item.valorTitulo.toFixed(2)}</td>
+            <td>${item.cpfCnpj}</td>
+        </tr>`;
+    });
+
+    html += "</table>";
+    div.innerHTML = html;
+}
+
 function mostrarImagem(conteudo) {
     const imgElement = document.createElement("img");
     imgElement.src = conteudo;
+    imgElement.style.maxWidth = "100%";
     document.getElementById("image-preview").appendChild(imgElement);
 }
 
-function mostrarPdf(conteudo) {
-    const typedArray = new Uint8Array(conteudo);
-
+function mostrarPdf(typedArray) {
     pdfjsLib.getDocument(typedArray).promise.then(function(pdf) {
         pdf.getPage(1).then(function(page) {
             const scale = 1.5;
-            const viewport = page.getViewport({ scale: scale });
+            const viewport = page.getViewport({ scale });
 
             const canvas = document.createElement("canvas");
             const context = canvas.getContext('2d');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            page.render({
-                canvasContext: context,
-                viewport: viewport
-            });
-
+            page.render({ canvasContext: context, viewport });
             document.getElementById("pdf-preview").appendChild(canvas);
         });
     });
