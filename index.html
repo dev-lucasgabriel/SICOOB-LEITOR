@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Arquivo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="LOGO">
+            <img src="LOGO HT.png" alt="Logo">
+        </div>
+        <h1>Faça o Upload de um Arquivo para Análise</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="arquivo" required>
+            <button onclick="analisarArquivo()">Analisar Arquivo</button>
+        </div>
+
+        <div class="resultados" id="resultados"></div>
+        <div id="image-preview"></div>
+        <div id="pdf-preview"></div>
+    </div>
+    
+    <!-- Incluindo o script JS -->
+    <script src="scripts.js"></script>
+</body>
+</html>

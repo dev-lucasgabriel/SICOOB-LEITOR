@@ -1,0 +1,125 @@
+/* Resetando margens e paddings */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo global para o body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #041437; /* Cor de fundo */
+    color: #f0f8ff; /* Cor de texto */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* Container geral */
+.container {
+    text-align: center;
+    background-color: #1e2a47;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
+}
+
+/* Logo */
+.LOGO {
+    margin-bottom: 20px;
+}
+
+.LOGO img {
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.LOGO img:hover {
+    transform: scale(1.1);
+}
+
+/* Título */
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Estilo da seção de upload */
+.upload-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.upload-section input[type="file"] {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #ffffff;
+    color: #041437;
+}
+
+.upload-section button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    background-color: #3a6ea5;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.upload-section button:hover {
+    background-color: #2d4a6c;
+}
+
+/* Resultados */
+.resultados {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 2px solid #3a6ea5;
+}
+
+.resultados div {
+    margin-bottom: 10px;
+}
+
+/* Estilo para visualização de imagens */
+#image-preview img {
+    max-width: 100%;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Estilo para visualização de PDF */
+#pdf-preview canvas {
+    max-width: 100%;
+    margin-top: 20px;
+}
+
+/* Adicionando animação sutil ao título */
+h1 {
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
