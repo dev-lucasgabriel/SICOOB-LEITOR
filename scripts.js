@@ -1,5 +1,5 @@
 function analisarArquivo() {
-    const inputFile = document.getElementById('arquivo');
+    const inputFile = document.getElementById('arquivo'); 
     const arquivo = inputFile.files[0];
 
     if (!arquivo) {
@@ -108,7 +108,7 @@ function mostrarResultadosRET(registros) {
         </tr>`;
     });
 
-    html += "</table>";
+    html += "</table>";          
     div.innerHTML = html;
 }
 
