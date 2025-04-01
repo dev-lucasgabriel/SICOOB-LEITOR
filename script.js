@@ -38,8 +38,12 @@ function analisarArquivo() {
         }
     };
 
+    reader.onerror = function(event) {
+        alert("Erro ao ler o arquivo. Tente novamente.");
+    };
+
     if (tipoArquivo.startsWith("text/") || nomeArquivo.endsWith(".ret")) {
-        reader.readAsText(arquivo, 'windows-1252');
+        reader.readAsText(arquivo, 'UTF-8');  // Melhor usar UTF-8 para maior compatibilidade
     } else if (tipoArquivo.startsWith("image/")) {
         reader.readAsDataURL(arquivo);
     } else if (tipoArquivo === "application/pdf") {
@@ -170,5 +174,7 @@ function mostrarPdf(typedArray) {
             page.render({ canvasContext: context, viewport });
             document.getElementById("pdf-preview").appendChild(canvas);
         });
+    }).catch(function(error) {
+        alert("Erro ao carregar o PDF.");
     });
 }
